@@ -113,4 +113,4 @@ Default canonical vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `
 
 ### Domain docs
 
-Single-context repo. Glossary at `CONTEXT.md` (created lazily by `/grill-with-docs`); ADRs in `docs/adr/`. See `docs/agents/domain.md`.
+Single-context repo. Glossary at `CONTEXT.md`; ADRs in `docs/adr/`. See `docs/agents/domain.md`.
