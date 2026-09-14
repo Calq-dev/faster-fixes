@@ -24,11 +24,11 @@ jobs:
 
       - uses: pnpm/action-setup@v6
 
-      # setup-node v7 or later: earlier majors wrote a placeholder auth token that blocked OIDC.
+      # No registry-url: with it, setup-node writes an .npmrc that reads an unset NODE_AUTH_TOKEN,
+      # and an auth line, even empty, stops npm from attempting the OIDC exchange.
       - uses: actions/setup-node@v7
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
 
       # pnpm 10 delegates publish to the npm CLI, and trusted publishing needs npm >= 11.5.1.
       # Node 22 still bundles npm 10.
@@ -40,9 +40,9 @@ jobs:
       - name: Version packages or publish to npm
         uses: changesets/action@v2
         with:
-          version: pnpm version-packages
-          publish: pnpm release
-          commit: "chore(release): version packages"
-          title: "chore(release): version packages"
+          version-script: pnpm version-packages
+          publish-script: pnpm release
+          commit-message: "chore(release): version packages"
+          pr-title: "chore(release): version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
