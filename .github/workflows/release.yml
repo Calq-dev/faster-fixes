@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# One release run at a time, never cancelled: a cancelled publish can leave a package half-released.
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write # push the "Version Packages" branch and git tags
+  pull-requests: write # open and update the "Version Packages" PR
+  id-token: write # mint the OIDC token npm exchanges for a short-lived publish credential
+
+jobs:
+  release:
+    name: Version or publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # changesets needs the full history to compute which packages changed since main
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v6
+
+      # setup-node v7 or later: earlier majors wrote a placeholder auth token that blocked OIDC.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      # pnpm 10 delegates publish to the npm CLI, and trusted publishing needs npm >= 11.5.1.
+      # Node 22 still bundles npm 10.
+      - run: npm install -g npm@latest
+
+      - run: pnpm install --frozen-lockfile
+
+      # Provenance is attached automatically under trusted publishing; no flag or token needed.
+      - name: Version packages or publish to npm
+        uses: changesets/action@v2
+        with:
+          version: pnpm version-packages
+          publish: pnpm release
+          commit: "chore(release): version packages"
+          title: "chore(release): version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
