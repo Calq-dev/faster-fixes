@@ -9,6 +9,8 @@ This fork adds what upstream needs to run outside Vercel:
 - `SIGNUP_ALLOWED_EMAIL_DOMAINS`: closes open registration except for those domains and invited addresses.
 - Security fixes: bulk inbox actions scoped to the caller's organisations, reviewers limited to their own feedback, reviewer token hashes no longer accepted or shown, input caps on the public API, no open redirect after login, client IP taken from X-Real-IP.
 - Invitees skip onboarding: a pending invitation is accepted when the email address is verified, and no personal organisation is created for them.
+- External tracker links: agent scope `feedbacks:link`, `POST /api/v1/agent/feedbacks/:id/link` (`{provider, externalId, url}`, upserts) and `GET /api/v1/agent/feedbacks?unlinked=true`. The link shows in the dashboard feedback panel. Used by a triage agent that files feedback into YouTrack.
+- Widget: the element outline stays after selecting (touch devices) and the text field is 16px (no iOS zoom).
 - `/widget.js`: a script-tag build of the React widget for sites without React.
 
 ## Run
