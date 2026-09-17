@@ -8,6 +8,7 @@ export const ListFeedbacksQuerySchema = z.object({
   page_url: z.url().optional(),
   project: z.string().min(1),
   format: z.enum(["json", "markdown"]).default("json"),
+  unlinked: z.enum(["true", "false"]).optional(),
 });
 
 export const UpdateFeedbackStatusSchema = z.object({
@@ -15,6 +16,12 @@ export const UpdateFeedbackStatusSchema = z.object({
 });
 
 export const FeedbackIdSchema = z.string().uuid();
+
+export const LinkFeedbackSchema = z.object({
+  provider: z.enum(["youtrack"]),
+  externalId: z.string().trim().min(1).max(100),
+  url: z.url({ protocol: /^https?$/ }).max(2000),
+});
 
 const FeedbackItemSchema = z.object({
   comment: z.string().trim().min(1),

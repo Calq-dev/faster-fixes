@@ -26,13 +26,14 @@ export async function listFeedbacks(req: NextRequest) {
     page_url: searchParams.get("page_url") ?? undefined,
     project: searchParams.get("project") ?? undefined,
     format: searchParams.get("format") ?? undefined,
+    unlinked: searchParams.get("unlinked") ?? undefined,
   });
 
   if (!parsed.success) {
     return agentError("Validation failed", "VALIDATION_ERROR", 422);
   }
 
-  const { status, page_url, project, format } = parsed.data;
+  const { status, page_url, project, format, unlinked } = parsed.data;
 
   const projectId = resolveProjectId(project, agentToken.organization.projects);
   if (!projectId) {
@@ -44,11 +45,13 @@ export async function listFeedbacks(req: NextRequest) {
       projectId,
       ...(status ? { status } : {}),
       ...(page_url ? { pageUrl: page_url } : {}),
+      ...(unlinked === "true" ? { externalLink: { is: null } } : {}),
     },
     orderBy: { createdAt: "desc" },
     include: {
       reviewer: { select: { name: true } },
       screenshot: { select: { key: true, provider: true, bucket: true } },
+      externalLink: { select: { provider: true, externalId: true, url: true } },
     },
   });
 
@@ -77,6 +80,7 @@ export async function listFeedbacks(req: NextRequest) {
       diagnosticTrail: f.diagnosticTrail as DiagnosticTrail | null,
       reviewerName: f.reviewer.name,
       createdAt: f.createdAt,
+      externalLink: f.externalLink,
     })),
   );
 

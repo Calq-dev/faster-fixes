@@ -9,6 +9,7 @@ export const CreateAgentTokenSchema = z.object({
         "feedbacks:read",
         "feedbacks:update_status",
         "feedbacks:create",
+        "feedbacks:link",
       ]),
     )
     .min(1, "Select at least one permission"),
