@@ -89,7 +89,8 @@ export const textareaStyle: React.CSSProperties = {
   borderRadius: 6,
   resize: "vertical",
   fontFamily: "inherit",
-  fontSize: 14,
+  // 16px or more: iOS Safari zooms the whole page into any smaller input on focus.
+  fontSize: 16,
   outline: "none",
   boxSizing: "border-box",
   backgroundColor: "#27272a",
