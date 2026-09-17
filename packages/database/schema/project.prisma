@@ -97,6 +97,7 @@ model Feedback {
   linearIssueLink FeedbackLinearIssueLink?
   jiraIssueLink   FeedbackJiraIssueLink?
   slackMessage    FeedbackSlackMessage?
+  externalLink    FeedbackExternalLink?
 
   @@index([projectId])
   @@index([reviewerId])

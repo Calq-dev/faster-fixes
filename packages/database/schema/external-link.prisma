@@ -1,0 +1,16 @@
+// A link from a feedback item to an issue in a tracker without a built-in
+// integration (YouTrack). One per feedback item; the triage agent writes it.
+model FeedbackExternalLink {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  feedbackId String   @unique
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  provider   String
+  externalId String
+  url        String
+
+  @@map("feedback_external_link")
+}
