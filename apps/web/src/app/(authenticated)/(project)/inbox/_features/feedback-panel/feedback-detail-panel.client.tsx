@@ -202,6 +202,25 @@ export function FeedbackDetailPanel({
             jiraIssueLink={feedback.jiraIssueLink}
           />
 
+          {feedback.externalLink && (
+            <div className="flex flex-col gap-2">
+              <h4 className="text-muted-foreground text-xs font-medium uppercase">
+                {feedback.externalLink.provider === "youtrack"
+                  ? "YouTrack"
+                  : feedback.externalLink.provider}
+              </h4>
+              <a
+                href={feedback.externalLink.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-sm underline"
+              >
+                {feedback.externalLink.externalId}
+                <ExternalLink className="size-3" />
+              </a>
+            </div>
+          )}
+
           <AssigneeSelect
             feedbackId={feedback.id}
             value={feedback.assignee?.id ?? null}

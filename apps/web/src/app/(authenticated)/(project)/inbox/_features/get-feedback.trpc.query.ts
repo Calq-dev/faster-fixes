@@ -66,6 +66,9 @@ export const getFeedback = protectedProcedure
             issueStatusCategory: true,
           },
         },
+        externalLink: {
+          select: { provider: true, externalId: true, url: true },
+        },
       },
     });
 
@@ -100,6 +103,7 @@ export const getFeedback = protectedProcedure
         issueLink: f.issueLink,
         linearIssueLink: f.linearIssueLink,
         jiraIssueLink: f.jiraIssueLink,
+        externalLink: f.externalLink,
       })),
     );
   });
