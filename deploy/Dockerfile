@@ -33,8 +33,10 @@ RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" \
       && pnpm --filter @workspace/widget-embed build \
       && pnpm --filter web build"
 
-# Run as the unprivileged node user; Next.js writes its image cache under .next.
-RUN chown -R node:node /repo/apps/web/.next
+# Run as the unprivileged node user. At runtime Next.js writes its image cache under
+# .next and fumadocs regenerates .source, so both must belong to that user.
+RUN mkdir -p /repo/apps/web/.source \
+ && chown -R node:node /repo/apps/web/.next /repo/apps/web/.source
 USER node
 WORKDIR /repo/apps/web
 
