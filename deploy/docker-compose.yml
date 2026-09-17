@@ -1,0 +1,64 @@
+# Self-hosted stack: web app, Postgres and a self-hosted Inngest server.
+# Secrets live in deploy/.env (see .env.example next to this file).
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        NEXT_PUBLIC_STORAGE_BASE_URL: ${NEXT_PUBLIC_STORAGE_BASE_URL}
+        NEXT_PUBLIC_FF_API_ORIGIN: ${BASE_URL}
+    image: faster-fixes-web:local
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://fasterfixes:${POSTGRES_PASSWORD}@postgres:5432/fasterfixes?schema=public
+      DATABASE_DRIVER: pg
+      INNGEST_BASE_URL: http://inngest:8288
+      INNGEST_SERVE_ORIGIN: http://web:3000
+      INNGEST_DEV: "0"
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3040}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  migrate:
+    image: faster-fixes-web:local
+    profiles: ["migrate"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://fasterfixes:${POSTGRES_PASSWORD}@postgres:5432/fasterfixes?schema=public
+    command: ["pnpm", "--filter", "@workspace/db", "exec", "prisma", "migrate", "deploy"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fasterfixes
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: fasterfixes
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fasterfixes -d fasterfixes"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  inngest:
+    image: inngest/inngest:latest
+    restart: unless-stopped
+    command: >
+      inngest start
+      --event-key ${INNGEST_EVENT_KEY}
+      --signing-key ${INNGEST_SIGNING_KEY}
+      --postgres-uri postgresql://fasterfixes:${POSTGRES_PASSWORD}@postgres:5432/inngest
+      --sdk-url http://web:3000/api/inngest
+    depends_on:
+      postgres:
+        condition: service_healthy

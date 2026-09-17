@@ -1,0 +1,19 @@
+{
+  "name": "@workspace/widget-embed",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Script-tag build of the React widget, for sites that do not use React.",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@fasterfixes/react": "workspace:*",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.4"
+  }
+}

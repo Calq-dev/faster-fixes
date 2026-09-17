@@ -1,16 +1,18 @@
 import { SUBSCRIPTION_PLANS } from "@/server/auth/config/subscription-plans";
 import { stripeApi } from "@/server/stripe";
 import { stripe } from "@better-auth/stripe";
+import { isCloud } from "@/utils/environment/env";
 import { prisma } from "@workspace/db";
 
-if (process.env.NODE_ENV === "production" && !process.env.STRIPE_WEBHOOK_SIGNING_SECRET) {
+// Billing only runs on the hosted cloud version.
+if (isCloud() && process.env.NODE_ENV === "production" && !process.env.STRIPE_WEBHOOK_SIGNING_SECRET) {
   throw new Error("STRIPE_WEBHOOK_SIGNING_SECRET is required in production");
 }
 
 export const stripePlugin = stripe({
   stripeClient: stripeApi,
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SIGNING_SECRET ?? "",
-  createCustomerOnSignUp: true,
+  createCustomerOnSignUp: isCloud(),
   organization: {
     enabled: true,
     getCustomerCreateParams: async (organization) => {
