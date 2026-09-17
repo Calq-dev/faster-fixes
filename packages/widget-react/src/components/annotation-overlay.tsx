@@ -40,6 +40,9 @@ export function AnnotationOverlay() {
 
       setSelectedElement(target);
       setClickCoords({ x: e.clientX, y: e.clientY });
+      // Keep the outline on the chosen element. Touch has no hover, so without
+      // this a mobile reviewer never sees what the comment is attached to.
+      setHighlightRect(target.getBoundingClientRect());
 
       // Capture screenshot asynchronously, store promise for submit to await
       const capturePromise = captureViewportScreenshot();
@@ -95,7 +98,7 @@ export function AnnotationOverlay() {
     };
   }, [mode, handleMouseMove, handleClick, suppressEvent, handleKeyDown]);
 
-  if (mode !== "annotating" || !highlightRect) return null;
+  if ((mode !== "annotating" && mode !== "selected") || !highlightRect) return null;
 
   return (
     <div
