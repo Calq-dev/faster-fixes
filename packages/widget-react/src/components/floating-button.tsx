@@ -244,8 +244,8 @@ function ToolbarControl({
         style={{
           ...toolbarButtonStyle,
           backgroundColor: tone === "active"
-            ? "rgba(255,255,255,0.3)"
-            : "rgba(255,255,255,0.15)",
+            ? "var(--ff-toolbar-overlay-active, rgba(255,255,255,0.3))"
+            : "var(--ff-toolbar-overlay, rgba(255,255,255,0.15))",
         }}
         onClick={(e) => {
           e.stopPropagation();

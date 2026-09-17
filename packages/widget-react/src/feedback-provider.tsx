@@ -22,6 +22,8 @@ type FeedbackProviderProps = {
   apiKey?: string;
   apiOrigin?: string;
   color?: string;
+  /** Text and icon colour on the accent colour, for light accents. */
+  textColor?: string;
   position?: WidgetPosition;
   classNames?: Partial<ClassNames>;
   labels?: Partial<Labels>;
@@ -36,6 +38,7 @@ export function FeedbackProvider({
   apiKey,
   apiOrigin,
   color,
+  textColor,
   position,
   classNames,
   labels,
@@ -86,6 +89,7 @@ export function FeedbackProvider({
       reviewerToken={reviewerToken}
       config={config}
       color={color}
+      textColor={textColor}
       position={position}
       classNames={classNames}
       labels={labels}

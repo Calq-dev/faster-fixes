@@ -2,6 +2,7 @@ import { generateUniqueSlug } from "@/app/_features/organization/_utils/generate
 import { prisma } from "@workspace/db";
 import type { BetterAuthOptions } from "better-auth";
 import { APIError } from "better-auth/api";
+import { hasPendingInvitation } from "./accept-pending-invitations";
 
 // SIGNUP_ALLOWED_EMAIL_DOMAINS (comma separated) closes open registration on a
 // self-hosted instance: only those domains, or an address with a pending
@@ -51,6 +52,9 @@ export const databaseHooks: NonNullable<BetterAuthOptions["databaseHooks"]> = {
           },
         });
 
+        // Invitees join the inviting organisation on email verification instead.
+        if (await hasPendingInvitation(user.email)) return;
+
         // Generate a unique slug for the default organization
         const organizationSlug = await generateUniqueSlug("My organization");
 
@@ -85,16 +89,19 @@ export const databaseHooks: NonNullable<BetterAuthOptions["databaseHooks"]> = {
       before: async (session) => {
         try {
           // Retrieve the user's default organization
-          const defaultOrg = await prisma.organization.findFirst({
-            where: {
-              members: {
-                some: {
-                  userId: session.userId,
-                },
+          // Invitees have no default organisation of their own, so fall back to
+          // the first organisation they are a member of.
+          const defaultOrg =
+            (await prisma.organization.findFirst({
+              where: {
+                members: { some: { userId: session.userId } },
+                isDefault: true,
               },
-              isDefault: true,
-            },
-          });
+            })) ??
+            (await prisma.organization.findFirst({
+              where: { members: { some: { userId: session.userId } } },
+              orderBy: { createdAt: "asc" },
+            }));
 
           // Return the modified session with activeOrganizationId set
           // This directly modifies the session before database persistence

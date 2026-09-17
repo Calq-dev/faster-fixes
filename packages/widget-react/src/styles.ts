@@ -21,7 +21,7 @@ export const triggerButtonStyle = (): React.CSSProperties => ({
   height: 40,
   borderRadius: "50%",
   backgroundColor: "var(--ff-accent)",
-  color: "#fff",
+  color: "var(--ff-accent-foreground, #fff)",
   border: "none",
   cursor: "pointer",
   display: "flex",
@@ -57,8 +57,8 @@ export const toolbarButtonStyle: React.CSSProperties = {
   width: 32,
   height: 32,
   borderRadius: "50%",
-  backgroundColor: "rgba(255,255,255,0.15)",
-  color: "#fff",
+  backgroundColor: "var(--ff-toolbar-overlay, rgba(255,255,255,0.15))",
+  color: "var(--ff-accent-foreground, #fff)",
   border: "none",
   cursor: "pointer",
   display: "flex",
@@ -109,7 +109,7 @@ export const buttonBaseStyle: React.CSSProperties = {
 export const primaryButtonStyle = (): React.CSSProperties => ({
   ...buttonBaseStyle,
   backgroundColor: "var(--ff-accent)",
-  color: "#fff",
+  color: "var(--ff-accent-foreground, #fff)",
 });
 
 export const secondaryButtonStyle: React.CSSProperties = {

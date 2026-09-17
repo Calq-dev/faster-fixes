@@ -33,6 +33,8 @@ export type FeedbackProviderCoreProps = {
   reviewerToken: string;
   config: WidgetConfig;
   color?: string;
+  /** Text and icon colour on the accent colour. Needed when the accent is light. */
+  textColor?: string;
   position?: WidgetPosition;
   classNames?: Partial<ClassNames>;
   labels?: Partial<Labels>;
@@ -56,6 +58,7 @@ export function FeedbackProviderCore({
   reviewerToken,
   config,
   color,
+  textColor,
   position,
   classNames: customClassNames,
   labels: customLabels,
@@ -365,6 +368,15 @@ export function FeedbackProviderCore({
               {
                 display: "contents",
                 "--ff-accent": effectiveColor,
+                // With a custom text colour the toolbar keeps the flat accent
+                // instead of white overlays, which wash out a light accent.
+                ...(textColor
+                  ? {
+                      "--ff-accent-foreground": textColor,
+                      "--ff-toolbar-overlay": "transparent",
+                      "--ff-toolbar-overlay-active": `color-mix(in srgb, ${textColor} 15%, transparent)`,
+                    }
+                  : {}),
               } as React.CSSProperties
             }
             onPointerDown={(e) => e.stopPropagation()}

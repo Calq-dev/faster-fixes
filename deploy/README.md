@@ -8,6 +8,7 @@ This fork adds what upstream needs to run outside Vercel:
 - Stripe only initialises on the cloud version.
 - `SIGNUP_ALLOWED_EMAIL_DOMAINS`: closes open registration except for those domains and invited addresses.
 - Security fixes: bulk inbox actions scoped to the caller's organisations, reviewers limited to their own feedback, reviewer token hashes no longer accepted or shown, input caps on the public API, no open redirect after login, client IP taken from X-Real-IP.
+- Invitees skip onboarding: a pending invitation is accepted when the email address is verified, and no personal organisation is created for them.
 - `/widget.js`: a script-tag build of the React widget for sites without React.
 
 ## Run
@@ -22,6 +23,8 @@ This fork adds what upstream needs to run outside Vercel:
 ## Embed on a site
 
     <script src="https://<instance>/widget.js" data-project-id="proj_..." data-lang="nl" defer></script>
+
+For a light accent set the text colour too: `data-color="#FFFF00" data-text-color="#000000"`.
 
 Add `data-capture-diagnostics="true"` to include console and network logs (off by default).
 

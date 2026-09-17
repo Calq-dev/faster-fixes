@@ -2,6 +2,7 @@ import { mailer } from "@/lib/mailer/client";
 import { SENDER_EMAIL } from "@/lib/mailer/constants";
 import { VerifyEmail } from "@/lib/mailer/templates/verify-email";
 import { inngest } from "@/server/inngest";
+import { acceptPendingInvitations } from "./accept-pending-invitations";
 import { render } from "@react-email/components";
 import { prisma } from "@workspace/db";
 import type { BetterAuthOptions } from "better-auth";
@@ -12,6 +13,10 @@ export const emailVerification: NonNullable<
   sendOnSignUp: true,
   autoSignInAfterVerification: true,
   afterEmailVerification: async (user) => {
+    // Only once the address is proven: an unverified sign-up must not join an
+    // organisation just by typing an invited email address.
+    await acceptPendingInvitations(user.id, user.email);
+
     // The middleware will automatically redirect to onboarding since the user
     // will have autoSignInAfterVerification=true but onboardingCompleted=false
 
