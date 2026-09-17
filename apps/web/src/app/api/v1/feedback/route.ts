@@ -15,13 +15,13 @@ import { z } from "zod";
 
 const ConsoleEntrySchema = z.object({
   level: z.enum(["log", "info", "warn", "error", "debug"]),
-  message: z.string(),
+  message: z.string().max(2000),
   timestamp: z.number(),
 });
 
 const NetworkEntrySchema = z.object({
-  method: z.string(),
-  url: z.string(),
+  method: z.string().max(16),
+  url: z.string().max(2000),
   status: z.number(),
   duration: z.number(),
   timestamp: z.number(),
@@ -34,17 +34,24 @@ const DiagnosticTrailSchema = z.object({
 });
 
 const CreateFeedbackSchema = z.object({
-  comment: z.string().trim().min(1),
-  pageUrl: z.string().url(),
-  selector: z.string().optional(),
+  comment: z.string().trim().min(1).max(5000),
+  pageUrl: z
+    .string()
+    .max(2000)
+    .url()
+    .refine((value) => /^https?:\/\//i.test(value), "Only http(s) page URLs"),
+  selector: z.string().max(2000).optional(),
   clickX: z.number().optional(),
   clickY: z.number().optional(),
-  browserName: z.string().optional(),
-  browserVersion: z.string().optional(),
-  os: z.string().optional(),
+  browserName: z.string().max(100).optional(),
+  browserVersion: z.string().max(100).optional(),
+  os: z.string().max(100).optional(),
   viewportWidth: z.number().int().optional(),
   viewportHeight: z.number().int().optional(),
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z
+    .record(z.string(), z.any())
+    .refine((value) => JSON.stringify(value).length <= 16000, "Metadata too large")
+    .optional(),
   diagnosticTrail: DiagnosticTrailSchema.optional(),
 });
 

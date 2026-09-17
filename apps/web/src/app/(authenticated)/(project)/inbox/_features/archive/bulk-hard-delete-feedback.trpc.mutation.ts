@@ -10,12 +10,19 @@ export const bulkHardDeleteFeedback = protectedProcedure
   .mutation(async ({ input, ctx }) => {
     const { prisma, session } = ctx;
 
+    // Only feedback in the caller's own organisations. Checking only the first id
+    // let a caller permanently delete feedback in other organisations.
+    const feedbackIds = [...new Set(input.feedbackIds)];
     const feedbackItems = await prisma.feedback.findMany({
-      where: { id: { in: input.feedbackIds } },
-      include: { project: { select: { organizationId: true } } },
+      where: {
+        id: { in: feedbackIds },
+        project: {
+          organization: { members: { some: { userId: session.user.id } } },
+        },
+      },
     });
 
-    if (feedbackItems.length === 0) {
+    if (feedbackItems.length !== feedbackIds.length) {
       throw new TRPCError({ code: "NOT_FOUND", message: "Feedback not found." });
     }
 
@@ -27,19 +34,6 @@ export const bulkHardDeleteFeedback = protectedProcedure
       });
     }
 
-    const firstItem = feedbackItems[0]!;
-
-    const membership = await prisma.member.findFirst({
-      where: {
-        organizationId: firstItem.project.organizationId,
-        userId: session.user.id,
-      },
-    });
-
-    if (!membership) {
-      throw new TRPCError({ code: "FORBIDDEN", message: "Access denied." });
-    }
-
     const screenshotIds = feedbackItems
       .map((f) => f.screenshotId)
       .filter((id): id is string => id !== null);
@@ -47,8 +41,8 @@ export const bulkHardDeleteFeedback = protectedProcedure
     await Promise.all(screenshotIds.map((id) => deleteAsset(id)));
 
     await prisma.feedback.deleteMany({
-      where: { id: { in: input.feedbackIds } },
+      where: { id: { in: feedbackIds } },
     });
 
-    return { count: input.feedbackIds.length };
+    return { count: feedbackIds.length };
   });

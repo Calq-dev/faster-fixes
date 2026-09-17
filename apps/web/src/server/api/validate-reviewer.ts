@@ -13,13 +13,9 @@ export async function validateReviewer(
   if (!token) return null;
 
   const hash = crypto.createHash("sha256").update(token).digest("hex");
-  const reviewer = await prisma.reviewer.findFirst({
-    where: { token: hash, projectId, isActive: true },
-  });
-  if (reviewer) return reviewer;
-
-  // Fallback: plaintext lookup for tokens not yet migrated — remove after data migration
+  // Only the hash is accepted. A plaintext fallback made the stored hash itself a
+  // working credential, so anyone who could read it could act as the reviewer.
   return prisma.reviewer.findFirst({
-    where: { token, projectId, isActive: true },
+    where: { token: hash, projectId, isActive: true },
   });
 }

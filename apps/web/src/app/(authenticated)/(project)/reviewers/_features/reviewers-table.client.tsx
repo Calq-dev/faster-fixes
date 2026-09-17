@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@workspace/ui/components/badge";
-import { Button } from "@workspace/ui/components/button";
 import {
   Table,
   TableBody,
@@ -10,8 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table";
-import { Check, Copy } from "lucide-react";
-import * as React from "react";
 
 import type { GetReviewersOutput } from "./get-reviewers.trpc.query";
 import { DeleteReviewerButton } from "./delete/delete-reviewer-button.client";
@@ -24,14 +21,6 @@ type ReviewersTableProps = {
 };
 
 export function ReviewersTable({ projectId, reviewers }: ReviewersTableProps) {
-  const [copied, setCopied] = React.useState<string | null>(null);
-
-  const handleCopy = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(id);
-    setTimeout(() => setCopied(null), 2000);
-  };
-
   return (
     <Table>
       <TableHeader>
@@ -39,7 +28,6 @@ export function ReviewersTable({ projectId, reviewers }: ReviewersTableProps) {
           <TableHead>Name</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Feedback</TableHead>
-          <TableHead>Share link</TableHead>
           <TableHead />
         </TableRow>
       </TableHeader>
@@ -55,25 +43,6 @@ export function ReviewersTable({ projectId, reviewers }: ReviewersTableProps) {
               )}
             </TableCell>
             <TableCell>{reviewer.feedbackCount}</TableCell>
-            <TableCell>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleCopy(reviewer.shareUrl, reviewer.id)}
-              >
-                {copied === reviewer.id ? (
-                  <>
-                    <Check className="text-success size-3" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="size-3" />
-                    Copy link
-                  </>
-                )}
-              </Button>
-            </TableCell>
             <TableCell>
               <div className="flex items-center gap-1">
                 {reviewer.isActive ? (

@@ -9,7 +9,7 @@ import { z } from "zod";
 type RouteParams = { params: Promise<{ id: string }> };
 
 const UpdateFeedbackSchema = z.object({
-  comment: z.string().trim().min(1),
+  comment: z.string().trim().min(1).max(5000),
 });
 
 // PUT /api/v1/feedback/:id — edit feedback comment
@@ -39,8 +39,9 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     );
   }
 
+  // Scoped to the reviewer: a single leaked token must not reach everyone's feedback.
   const feedback = await prisma.feedback.findFirst({
-    where: { id, projectId: project.id },
+    where: { id, projectId: project.id, reviewerId: reviewer.id },
   });
 
   if (!feedback) {
@@ -101,8 +102,9 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     );
   }
 
+  // Scoped to the reviewer: a single leaked token must not reach everyone's feedback.
   const feedback = await prisma.feedback.findFirst({
-    where: { id, projectId: project.id },
+    where: { id, projectId: project.id, reviewerId: reviewer.id },
   });
 
   if (!feedback) {

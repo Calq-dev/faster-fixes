@@ -33,5 +33,10 @@ RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" \
       && pnpm --filter @workspace/widget-embed build \
       && pnpm --filter web build"
 
+# Run as the unprivileged node user; Next.js writes its image cache under .next.
+RUN chown -R node:node /repo/apps/web/.next
+USER node
+WORKDIR /repo/apps/web
+
 EXPOSE 3000
-CMD ["pnpm", "--filter", "web", "start"]
+CMD ["node_modules/.bin/next", "start"]

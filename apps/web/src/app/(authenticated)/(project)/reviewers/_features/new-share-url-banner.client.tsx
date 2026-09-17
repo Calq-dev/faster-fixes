@@ -20,7 +20,7 @@ export function NewShareUrlBanner({ shareUrl }: NewShareUrlBannerProps) {
   return (
     <div className="border-success bg-success/10 rounded-md border p-4">
       <p className="text-success mb-2 text-sm font-medium">
-        Reviewer created! Share this link with your client:
+        Reviewer created! Copy this link now, it is only shown once:
       </p>
       <div className="flex items-center gap-2">
         <code className="bg-background flex-1 rounded px-2 py-1 font-mono text-xs break-all">

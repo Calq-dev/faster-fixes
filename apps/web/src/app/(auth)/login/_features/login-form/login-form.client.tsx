@@ -33,7 +33,12 @@ export function LoginForm() {
   const trpc = useTRPC();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextUrl = searchParams.get("nextUrl");
+  const requestedNextUrl = searchParams.get("nextUrl");
+  // Same-origin paths only: "//host" and "/\\host" are read as another origin.
+  const nextUrl =
+    requestedNextUrl && /^\/(?![/\\])/.test(requestedNextUrl)
+      ? requestedNextUrl
+      : null;
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
 
   const form = useForm<LoginInputs>({

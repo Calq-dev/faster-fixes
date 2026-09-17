@@ -15,34 +15,31 @@ export const bulkUpdateFeedbackStatus = protectedProcedure
   .mutation(async ({ input, ctx }) => {
     const { prisma, session } = ctx;
 
-    const firstFeedback = await prisma.feedback.findUnique({
-      where: { id: input.feedbackIds[0] },
-      include: { project: { select: { organizationId: true } } },
+    // Every id must belong to an organisation the caller is a member of. Checking
+    // only the first id let a caller change feedback in other organisations.
+    const feedbackIds = [...new Set(input.feedbackIds)];
+    const allowed = await prisma.feedback.findMany({
+      where: {
+        id: { in: feedbackIds },
+        project: {
+          organization: { members: { some: { userId: session.user.id } } },
+        },
+      },
+      select: { id: true },
     });
 
-    if (!firstFeedback) {
+    if (allowed.length !== feedbackIds.length) {
       throw new TRPCError({ code: "NOT_FOUND", message: "Feedback not found." });
     }
 
-    const membership = await prisma.member.findFirst({
-      where: {
-        organizationId: firstFeedback.project.organizationId,
-        userId: session.user.id,
-      },
-    });
-
-    if (!membership) {
-      throw new TRPCError({ code: "FORBIDDEN", message: "Access denied." });
-    }
-
     await prisma.feedback.updateMany({
-      where: { id: { in: input.feedbackIds } },
+      where: { id: { in: feedbackIds } },
       data: { status: input.status },
     });
 
     // Fan-out: one event per feedback so each gets independent retries and
     // fault isolation — a single failing GitHub sync won't block the others.
-    const events = input.feedbackIds.map((feedbackId) => ({
+    const events = feedbackIds.map((feedbackId) => ({
       name: "feedback/status-changed" as const,
       // Dashboard bulk edits are always a human in the inbox.
       data: { feedbackId, newStatus: input.status, actor: "user" as const },

@@ -39,11 +39,9 @@ export const getReviewers = protectedProcedure
     return reviewers.map((r) => ({
       id: r.id,
       name: r.name,
-      token: r.token,
       isActive: r.isActive,
       createdAt: r.createdAt,
       feedbackCount: r._count.feedback,
-      shareUrl: `https://${project.domain}?ff_token=${r.token}`,
     }));
   });
 

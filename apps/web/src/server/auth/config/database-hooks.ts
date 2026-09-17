@@ -1,10 +1,46 @@
 import { generateUniqueSlug } from "@/app/_features/organization/_utils/generate-unique-slug";
 import { prisma } from "@workspace/db";
 import type { BetterAuthOptions } from "better-auth";
+import { APIError } from "better-auth/api";
+
+// SIGNUP_ALLOWED_EMAIL_DOMAINS (comma separated) closes open registration on a
+// self-hosted instance: only those domains, or an address with a pending
+// organisation invitation, can create an account. Unset keeps upstream behaviour.
+async function assertSignupAllowed(email: string) {
+  const allowedDomains = (process.env.SIGNUP_ALLOWED_EMAIL_DOMAINS ?? "")
+    .split(",")
+    .map((domain) => domain.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (allowedDomains.length === 0) return;
+
+  const normalizedEmail = email.trim().toLowerCase();
+  const domain = normalizedEmail.split("@").pop() ?? "";
+  if (allowedDomains.includes(domain)) return;
+
+  const invitation = await prisma.invitation.findFirst({
+    where: {
+      email: { equals: normalizedEmail, mode: "insensitive" },
+      status: "pending",
+      expiresAt: { gt: new Date() },
+    },
+    select: { id: true },
+  });
+
+  if (!invitation) {
+    throw new APIError("FORBIDDEN", {
+      message: "Sign-up is by invitation only.",
+    });
+  }
+}
 
 export const databaseHooks: NonNullable<BetterAuthOptions["databaseHooks"]> = {
   user: {
     create: {
+      before: async (user) => {
+        await assertSignupAllowed(user.email);
+        return { data: user };
+      },
       after: async (user) => {
         // Create marketing preferences record
         await prisma.marketingPreferences.create({

@@ -3,7 +3,9 @@ import { createRoot } from "react-dom/client";
 
 // Usage:
 // <script src="https://<instance>/widget.js" data-project-id="proj_..." defer></script>
-// Optional attributes: data-lang="nl", data-color="#02527E", data-position="bottom-left".
+// Optional attributes: data-lang="nl", data-color="#02527E", data-position="bottom-left",
+// data-capture-diagnostics="true". Diagnostics are off by default: they copy the host
+// page's console output into the feedback, which on a client site can hold personal data.
 // The API origin defaults to the origin this script is served from.
 
 const DUTCH_LABELS = {
@@ -48,6 +50,7 @@ function mount() {
       color={script.dataset.color}
       position={script.dataset.position as Position | undefined}
       labels={script.dataset.lang === "nl" ? DUTCH_LABELS : undefined}
+      captureDiagnostics={script.dataset.captureDiagnostics === "true"}
     >
       {null}
     </FeedbackProvider>

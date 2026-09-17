@@ -54,7 +54,7 @@ export const auth = betterAuth({
   },
   advanced: {
     ipAddress: {
-      ipAddressHeaders: ["x-forwarded-for", "x-real-ip"],
+      ipAddressHeaders: ["x-real-ip", "x-forwarded-for"],
       ipv6Subnet: 64,
     },
     backgroundTasks: {

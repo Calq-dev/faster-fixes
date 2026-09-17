@@ -29,7 +29,8 @@ services:
     env_file: .env
     environment:
       DATABASE_URL: postgresql://fasterfixes:${POSTGRES_PASSWORD}@postgres:5432/fasterfixes?schema=public
-    command: ["pnpm", "--filter", "@workspace/db", "exec", "prisma", "migrate", "deploy"]
+    working_dir: /repo/packages/database
+    command: ["node_modules/.bin/prisma", "migrate", "deploy"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -53,12 +54,12 @@ services:
   inngest:
     image: inngest/inngest:latest
     restart: unless-stopped
-    command: >
-      inngest start
-      --event-key ${INNGEST_EVENT_KEY}
-      --signing-key ${INNGEST_SIGNING_KEY}
-      --postgres-uri postgresql://fasterfixes:${POSTGRES_PASSWORD}@postgres:5432/inngest
-      --sdk-url http://web:3000/api/inngest
+    # Keys and the database URI come from a config file, not the command line, so
+    # they do not show up in `ps` for every user on the host. Create it with
+    # deploy/write-inngest-config.sh.
+    command: ["inngest", "start", "--config", "/etc/inngest/inngest.yaml"]
+    volumes:
+      - ./inngest.yaml:/etc/inngest/inngest.yaml:ro
     depends_on:
       postgres:
         condition: service_healthy

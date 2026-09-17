@@ -55,3 +55,5 @@ packages/skills/*-workspace/
 apps/web/public/widget.js
 deploy/.env
 deploy/data/
+deploy/inngest.yaml
+deploy/backups/

@@ -1,0 +1,14 @@
+# Keep secrets, the database and local build output out of the image build context.
+.git
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+**/.env
+**/.env.*
+!**/.env.example
+deploy/.env
+deploy/data
+deploy/backups
+deploy/inngest.yaml
+packages/database/generated

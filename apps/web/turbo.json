@@ -46,7 +46,16 @@
 
         "SLACK_CLIENT_ID",
         "SLACK_CLIENT_SECRET",
-        "SLACK_TOKEN_ENCRYPTION_KEY"
+        "SLACK_TOKEN_ENCRYPTION_KEY",
+
+        "DATABASE_DRIVER",
+        "STORAGE_PROVIDER",
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "MAIL_PROVIDER",
+        "MAIL_DOMAIN",
+        "SES_REGION",
+        "SIGNUP_ALLOWED_EMAIL_DOMAINS"
       ]
     }
   }
